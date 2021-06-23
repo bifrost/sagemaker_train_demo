@@ -122,6 +122,8 @@ def main(args):
     # Train the model.
     trainer.train()
     trainer.evaluate()
+
+    # Elastic Inference
     # Save the model to the output_path defined in train_model.py.
     device = torch.device("cuda")
     dummy_row = train_dataset[0]
@@ -131,6 +133,10 @@ def main(args):
     )
     traced_model = torch.jit.trace(model, dummy_input)
     torch.jit.save(traced_model, os.path.join(args.model_dir, "model.pth"))
+
+    # Save the model to the output_path defined in train_model.py.
+    with open(os.path.join(args.model_dir, 'model.pth'), 'wb') as f:
+        torch.save(model.state_dict(), f)
 
 
 if __name__ =='__main__':

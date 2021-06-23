@@ -9,9 +9,9 @@ import sagemaker
 # Define AWS sessions.
 sagemaker_session = sagemaker.Session()
 # Define role arn with SageMaker and S3 access.
-role = f"arn:aws:iam::{os.environ['AWS_ACCOUNT_NUMBER']}:role/SageMakerFullAccess"
+role = f"arn:aws:iam::046704982951:role/service-role/AmazonSageMaker-ExecutionRole-20210622T142702"
 # Define S3 variables for data and model storage.
-bucket = "brent-sage-dev"
+bucket = "sagemaker-dan-rasmussen"
 model_prefix = "sagemaker/amazon_review_classifier/train"
 train_file = "small_book_reviews.json"
 input_path = f"s3://{bucket}/{model_prefix}/input_data/{train_file}"
@@ -29,15 +29,16 @@ hyperparameters = {
     "model_name": "distilbert-base-uncased", # https://huggingface.co/distilbert-base-uncased
     "train_batch_size": 32,
     "valid_batch_size": 128,
-    "epochs": 2,
+    "epochs": 1,
     "learning_rate": 5e-5,
     "weight_decay": .01,
-    "max_sequence_length": 128
+    "max_sequence_length": 128,
+    'max_data_rows': 1000
 }
 # Create SageMaker estimator and laucn training job.
 pytorch_estimator = PyTorch(
     entry_point='model.py', # The name of our model script.
-    source_dir='/Users/brent/projects/sagemaker_train_demo/src',
+    source_dir='/Users/dan/development/ml/sagemaker_train_demo/src',
     train_instance_type='ml.p2.xlarge', # Instnace with GPUs.
     train_instance_count=1,
     framework_version='1.5.0', # PyTorch version.
@@ -49,3 +50,4 @@ pytorch_estimator = PyTorch(
     sagemaker_session=sagemaker_session
 )
 pytorch_estimator.fit(inputs=None, job_name=f"amazon-review-model-{datetime.now().strftime('%Y%m%d%H%M%S')}")
+
